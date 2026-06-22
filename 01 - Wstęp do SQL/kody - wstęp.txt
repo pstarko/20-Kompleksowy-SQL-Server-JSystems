@@ -1,0 +1,247 @@
+select * from employees
+
+select * from jobs
+
+select * from departments
+
+
+select * from employees
+
+select e.* from employees e
+
+select
+top(5) last_name
+from Employees
+
+select
+ last_name
+from Employees
+
+select
+top(10) percent last_name
+from Employees
+
+select
+	top(6) with ties salary
+from Employees
+order by salary
+
+
+select
+	first_name,
+	last_name,
+	salary
+from Employees
+
+select
+	first_name "to jest imię",
+	last_name as nazwisko,
+	placa = salary,
+	salary + 999 z_podwyzka
+from Employees
+
+select
+	'Imię ',
+	first_name,
+	'Nazwisko ',
+	last_name,
+	'Płaca ',
+	salary 
+from Employees
+
+select
+	first_name,
+	last_name,
+	salary
+from Employees
+where salary > 15000
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	department_id
+from employees
+where 
+	first_name like 'S%'
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	department_id
+from employees
+where 
+	first_name like '_a%'
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	department_id
+from employees
+where 
+	salary between 4800 and 8000
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	commission_pct,
+	department_id
+from employees
+where 
+	salary > 5000
+	and department_id <> 30
+	or department_id = 50
+
+--Hierarchia operatorów:
+-- 1. ( )
+-- 2. AND
+-- 3. OR
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	department_id
+from employees
+where 
+	department_id IN (10,20,30)
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	department_id
+from employees
+where 
+	department_id = 10
+	or department_id = 20
+	or department_id = 30
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	department_id
+from employees
+where 
+	department_id NOT IN (10,20,30)
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	commission_pct,
+	department_id
+from employees
+where 
+	commission_pct is null
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	commission_pct,
+	salary + (salary * ISNULL(commission_pct, 0)) pelna_placa ,
+	department_id
+from employees
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary,
+	commission_pct,
+	department_id
+from employees
+where 
+	commission_pct is not null
+
+create table coalesce_problem (col1 int, col2 int, col3 int);
+
+insert into coalesce_problem values (null,null,1);
+insert into coalesce_problem values (null,2,1);
+insert into coalesce_problem values (3,2,1);
+
+select * from coalesce_problem
+
+select 
+	col1,
+	col2,
+	col3,
+	coalesce(col1,col2,col3) result
+from coalesce_problem 
+
+drop table coalesce_problem
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary
+from employees
+order by first_name
+
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	salary
+from employees
+order by salary DESC
+
+select
+	employee_id,
+	first_name,
+	last_name,
+	department_id,
+	salary
+from employees
+order by department_id, salary DESC
+
+--0,0041404 -> 0,0166271
+select
+	employee_id,
+	first_name,
+	last_name,
+	department_id,
+	salary
+from employees
+order by last_name
+
+select
+	distinct
+	department_id
+from employees
+
+
+IF OBJECT_ID('#Dept_10') IS NOT NULL
+DROP TABLE #Dept_10;
+GO
+
+SELECT *
+INTO #Dept_10
+FROM Employees
+WHERE department_id = 10
+
+select * from #Dept_10
+
+drop table #Dept_10
