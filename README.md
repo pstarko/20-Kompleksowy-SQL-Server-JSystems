@@ -20,7 +20,7 @@ Przed szkoleniem zainstaluj:
 2. **Klient SQL**:
    - SQL Managment Studio - https://learn.microsoft.com/en-us/ssms/install/install ✅
 
-3. **Dodatkowa baza danych - Adventure Works 2025** – wybierz jeden:
+3. **Dodatkowa baza danych - Adventure Works 2025**:
    - Adventure Works 2025 - wersja OLTP - https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver17&tabs=ssms ✅
 
 ---
