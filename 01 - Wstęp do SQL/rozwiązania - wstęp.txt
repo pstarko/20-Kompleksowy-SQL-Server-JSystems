@@ -15,3 +15,30 @@ select
 	*
 	from departments
 order by department_name
+
+/*
+3. Wyświetl listę job_id bez duplikatów(z tabeli employees) bez departamentu 20 (17 wierszy)
+*/
+select
+	distinct job_id
+	from employees
+where
+	department_id <> 20
+
+select
+	distinct job_id
+	from employees
+where
+	department_id not in (20)
+/*
+4. wyświetl wszystkie informacje pracownikach na etatach AC_ACCOUNT i FI_ACCOUNT i 
+posortuj ich według daty zatrudnienia(malejąco) (6 wierszy)
+*/
+
+select
+	*
+	from employees
+where
+	job_id in ('AC_ACCOUNT', 'FI_ACCOUNT')
+order by
+	hire_date desc
