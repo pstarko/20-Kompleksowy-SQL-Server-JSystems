@@ -14,7 +14,7 @@ piątek: 8:30 - 15:00 <br>
 
 Przed szkoleniem zainstaluj:
 
-1. **SQL Server 2025 Developer** 
+1. **SQL Server Developer** - mimimalna wersja 2022
    - Wszystkie platformy - https://www.microsoft.com/pl-pl/sql-server/sql-server-downloads ✅
 
 2. **Klient SQL**:
