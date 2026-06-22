@@ -4,11 +4,11 @@ Witaj! Tu znajdziesz wszystkie materiały do szkolenia **Kompleksowy SQL w SQL S
 
 ---
 ## 📋 Godziny szkolenia:
-poniedziałek: 9:00 - 15:30
-wtorek: 9:00 - 15:30
-środa: 8:30 - 15:00
-czwartek: 8:30 - 15:00 
-piątek: 8:30 - 15:00
+poniedziałek: 9:00 - 15:30 <br>
+wtorek: 9:00 - 15:30 <br>
+środa: 8:30 - 15:00 <br>
+czwartek: 8:30 - 15:00 <br>
+piątek: 8:30 - 15:00 <br>
 
 ## 📋 Wymagania wstępne
 
