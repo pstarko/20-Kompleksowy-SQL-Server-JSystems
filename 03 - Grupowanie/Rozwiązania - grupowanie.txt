@@ -24,3 +24,53 @@ group by
 	job_id
 order by _avg desc
 
+/*
+3.
+Wyświetl liczbę IT_PROG zatrudnionych w firmie
+*/
+
+select
+	count(employee_id)
+	from employees
+where
+	job_id = 'IT_PROG'
+
+/*
+4.
+Znajdź łączne miesięczne wynagrodzenie dla każdego działu. Nie zapomnij o dodatkowych zarobkach. 
+W wyniku usuń department z wartością null (11 wierszy)
+*/
+
+select
+	department_id,
+	sum(salary+(salary * isnull(commission_pct,0))) suma
+	from employees
+where
+	department_id is not null
+group by
+	department_id
+
+
+/*
+5. Dla każdego szefa wyświetl pensję najgorzej zarabiającego podwładnego. Sortuj
+wyniki według malejącej pensji (19 wierszy).
+*/
+
+select
+	manager_id,
+	min(salary) pensja
+	from employees
+group by
+	manager_id
+order by pensja desc
+
+/*
+6. Sprawdź, ilu mamy pracowników z literą O i R w nazwisku
+*/
+
+select
+	count(employee_id)
+	from employees
+where
+	last_name like '%O%'
+	and last_name like '%R%'
