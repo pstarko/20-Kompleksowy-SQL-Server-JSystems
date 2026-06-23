@@ -1,0 +1,82 @@
+/* NonClustered */
+
+
+CREATE UNIQUE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_Country ON AllData (Country)
+
+
+EXEC sp_spaceused 'AllData'
+
+SELECT * FROM AllData
+
+SELECT * FROM AllData WHERE FirstName = 'Eric'
+
+SELECT * FROM AllData WHERE Country = 'Germany'
+
+SELECT * FROM AllData WHERE ID = 1771
+
+
+SELECT count(*) FROM AllData WHERE Country = 'Germany'
+
+SELECT count(Title) FROM AllData WHERE Country = 'Germany'
+
+SELECT ID FROM AllData WHERE Country = 'Germany'
+
+SELECT * FROM AllData WITH (INDEX ([IDX_NCL_AllData_Country])) WHERE Country = 'Germany'
+
+SELECT ID, FirstName, LastName FROM AllData WHERE Country = 'Germany'
+
+SELECT Country, COUNT(*)
+FROM AllData
+GROUP BY Country
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City ON AllData (City)
+
+SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID('AllData')
+
+
+SELECT City, COUNT(*)
+FROM AllData
+GROUP BY City
+ORDER BY count(*) DESC
+
+SELECT City, COUNT(*)
+FROM AllData
+GROUP BY City
+ORDER BY City DESC
+
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Dresden'
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Paris'
+
+SELECT ID, FirstName, LastName 
+FROM AllData WITH (INDEX (IDX_NCL_AllData_City))
+WHERE City = 'Paris'
+
+/*
+	NONCLUSTERED INDEX
+	INCLUDE
+*/
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City ON AllData (City)
+INCLUDE (Firstname, Lastname)
+WITH DROP_EXISTING 
+GO
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Paris'
+
+SELECT ID, FirstName, LastName, ModifiedDate
+FROM AllData 
+WHERE City = 'Paris'
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Paris'
+ORDER BY Lastname, FirstName
