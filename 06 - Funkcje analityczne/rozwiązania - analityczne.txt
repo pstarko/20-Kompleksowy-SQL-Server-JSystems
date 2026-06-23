@@ -35,3 +35,36 @@ select
 where
 	department_id between 10 and 50
 group by GROUPING sets ((department_id), (job_id), (department_id, job_id))
+
+
+
+/*
+4. W sumie departamenty poza 80,100 i 110 będą miały podwyżkę w 2026 w sumie o 10%, 
+a w 2027 o kolejne 10%. 
+
+Minimum budżetu będzie się zmniejszało od 20000 w 2025 poprzez 15000 w 2026, 
+aż po 10000 w 2027 roku. 
+
+Pokaż jak będą się kształtować sumy wydatków dla wskazanych 
+departamentów w poniższej formie (9 wierszy)
+*/
+
+select
+	IIF(GROUPING(department_id) = 1, 'Suma budżetów', CAST(department_id as varchar)),
+	SUM(salary) sum2025,
+	CASE
+		WHEN SUM(salary) > 20000 AND GROUPING(department_id) <> 1 THEN 'Minimum osiągnięte'
+		ELSE '---' END summary2025,
+	SUM(salary) * 1.1 sum2026,
+	CASE
+		WHEN SUM(salary) > 15000 AND GROUPING(department_id) <> 1 THEN 'Minimum osiągnięte'
+		ELSE '---' END summary2026,
+	SUM(salary) * POWER(1.10,2) sum2027,
+	CASE
+		WHEN SUM(salary) > 10000 AND GROUPING(department_id) <> 1 THEN 'Minimum osiągnięte'
+		ELSE '---' END summary2027
+	from employees
+where 
+	department_id not in (80,100,110) and department_id is not null
+group by 
+	cube(department_id)
