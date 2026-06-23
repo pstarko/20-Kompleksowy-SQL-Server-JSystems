@@ -36,3 +36,18 @@ select
 	from employees e RIGHT JOIN departments d on e.department_id = d.department_id
 where
 	d.department_name not in ('Operations')
+
+
+/*
+4. Pokaż ilość zatrudnionych pracowników w Stretford, Bombay, Sydney, London, Munich i Seattle(6 wierszy)
+*/
+
+select
+	l.city,
+	count(e.employee_id) ilosc_pracownikow
+	from employees e JOIN departments d on e.department_id = d.department_id
+					 right JOIN locations l on l.location_id = d.location_id
+where
+	l.city in ('Stretford', 'Bombay', 'Sydney', 'London', 'Munich', 'Seattle')
+group by 
+	l.city
