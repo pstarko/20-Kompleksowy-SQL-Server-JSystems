@@ -80,3 +80,48 @@ SELECT ID, FirstName, LastName
 FROM AllData 
 WHERE City = 'Paris'
 ORDER BY Lastname, FirstName
+
+
+--wielokolumnowy indeks
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City 
+ON AllData (City, Lastname, Firstname)
+WITH DROP_EXISTING 
+GO
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Paris'
+order by LastName
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City in ('Paris', 'Dresden')
+order by LastName
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Paris'
+ORDER BY Lastname, FirstName
+
+SELECT ID, FirstName, LastName 
+FROM AllData 
+WHERE City = 'Paris'
+ORDER BY Lastname, FirstName DESC
+
+/*
+	RID LOOKUP vs KEY LOOKUP	
+*/
+
+CREATE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+GO
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City ON AllData (City)
+GO
+
+SELECT ID, FirstName, LastName
+FROM AllData 
+WHERE City = 'Dresden'
+
+DROP INDEX IDX_CL_AllData_ID ON AllData
+GO
