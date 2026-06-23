@@ -1,0 +1,146 @@
+
+--kartezjan
+select *
+	from employees, departments
+order by 1
+
+-- wewnętrzne z kartezjana
+
+select 
+	*
+	from  employees e, departments d
+where 
+	e.department_id=d.department_id
+
+-- wewnętrzne 
+
+select 
+	*
+	from  employees e JOIN departments d ON	e.department_id=d.department_id
+
+select 
+	*
+	from  departments d JOIN employees e ON e.department_id=d.department_id
+
+-- wewnętrzne z kartezjana
+
+select 
+	*
+	from  employees e, departments d, jobs j
+where 
+	e.department_id=d.department_id
+	and e.job_id = j.job_id
+
+-- wewnętrzne 
+
+select 
+	*
+	from  employees e JOIN departments d ON	e.department_id=d.department_id
+					  JOIN jobs j on e.job_id = j.job_id
+
+select 
+	*
+	from  employees e INNER JOIN departments d ON e.department_id=d.department_id
+
+-- wewnętrzne nierównościowe
+select 
+	e.last_name,
+	e.salary,
+	e.job_id,
+	j.job_id,
+	j.min_salary,
+	j.max_salary
+    from  employees e join jobs j  on e.salary between j.min_salary and j.max_salary
+order by 1
+
+-- zewnętrzne
+select 
+	e.department_id,
+	d.department_id,
+	d.department_name
+	from employees e right join departments d on e.department_id=d.department_id
+
+select 
+	e.department_id,
+	d.department_id,
+	d.department_name
+	from employees e right outer join departments d on e.department_id=d.department_id
+
+select 
+	e.department_id,
+	e.last_name,
+	d.department_id,
+	d.department_name
+	from employees e left join departments d on e.department_id=d.department_id
+
+-- FULL = inner join + right join + left join
+select 
+	e.department_id,
+	e.last_name,
+	d.department_id,
+	d.department_name
+	from employees e full join departments d on e.department_id=d.department_id
+
+--SELF JOIN
+select
+	e.employee_id,
+	e.last_name,
+	e.manager_id,
+	b.employee_id,
+	b.last_name,
+	b.manager_id
+    from  employees e join employees b on e.employee_id=b.manager_id
+
+--ANTY JOIN
+select
+	e.last_name,
+	e.department_id,
+	d.department_id,
+	d.department_name
+    from  employees e join departments d on e.department_id != d.department_id
+order by 1
+
+select
+	*
+	from employees e 
+	join 
+	(select department_name, department_id from departments) d
+		on e.department_id = d.department_id
+
+CREATE FUNCTION depart(@dept_id int)
+RETURNS TABLE
+AS
+	RETURN
+	SELECT 
+	department_id,
+	department_name
+	from departments
+	where department_id = @dept_id
+
+select * from dbo.depart(40)
+
+select
+count(*) liczba_wierszy
+from employees e cross apply depart(e.department_id)
+
+select
+count(*) liczba_wierszy
+from employees e outer apply depart(e.department_id)
+
+--połączenia wierszowe
+select department_id from departments
+union
+select department_id from employees
+
+
+select department_id from departments
+union all
+select department_id from employees
+
+select department_id from departments
+intersect
+select department_id from employees
+
+select department_id from departments
+except
+select department_id from employees
