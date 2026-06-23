@@ -1,0 +1,64 @@
+set statistics io on
+
+
+--696
+select * from alldata
+
+SELECT * FROM AllData 
+order by ModifiedDate
+
+SELECT distinct city FROM AllData 
+
+SELECT FirstName FROM AllData
+union
+SELECT firstname FROM Person.Person 
+
+SELECT FirstName FROM AllData
+union all
+SELECT firstname FROM Person.Person 
+
+/*
+	HEAP - tabela jako sterta 
+*/
+
+SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID('AllData')
+
+
+SELECT * FROM AllData WHERE FirstName = 'Eric'
+
+SELECT * FROM AllData WHERE Country = 'Germany'
+
+SELECT * FROM AllData WHERE ID = 1667
+
+SELECT * FROM AllData ORDER BY ID
+
+/*
+	CLUSTERED INDEX	
+*/
+
+CREATE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+
+SELECT * FROM AllData WHERE ID = 1667
+
+SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID('AllData')
+
+EXEC sp_spaceused 'AllData'
+
+SELECT * FROM AllData
+
+SELECT * FROM AllData ORDER BY ID 
+
+SELECT * FROM AllData WHERE FirstName = 'Eric'
+
+SELECT * FROM AllData WHERE Country = 'Germany'
+
+update AllData set  LastName = 'xxx'
+
+/*
+	PRIMARY KEY = indeks unikalny (klastrowy) 
+	
+*/
+
+ALTER TABLE AllData ADD CONSTRAINT PK_AllData PRIMARY KEY(ID)
+
+drop index ALLData.[PK_AllData]
