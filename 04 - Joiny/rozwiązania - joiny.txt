@@ -67,4 +67,25 @@ where
 	left(l.state_province,1) <> 'T'
 
 
+/*
+7. Pokaż nazwiska pracowników wraz z nazwiskami ich szefów(106 wierszy).
+
+8. Zmodyfikuj powyższe zapytanie w taki sposób, by został wyświetlony pracownik nie posiadający szefa. 
+Wybierz właściwy typ połączenia tabel(107 wierszy)
+*/
+
+select
+	e.first_name boss_fn,
+	e.last_name boss_ln,
+	b.first_name emp_fn,
+	b.last_name emp_ln
+	from employees e join employees b on e.employee_id = b.manager_id
+
+select
+	e.first_name boss_fn,
+	e.last_name boss_ln,
+	b.first_name emp_fn,
+	b.last_name emp_ln
+	from employees e right join employees b on e.employee_id = b.manager_id
+
 
