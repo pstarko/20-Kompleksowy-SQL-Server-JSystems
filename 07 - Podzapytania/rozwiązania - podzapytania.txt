@@ -64,3 +64,16 @@ where
 
 
 
+/*
+6. Wyświetl nazwiska i pensje pracowników, którzy zarabiają co najmniej 85%
+wynagrodzenia swojego szefa(5 wierszy)
+*/
+
+select
+	first_name,
+	last_name,
+	salary
+	from employees e
+where
+	salary >= (select salary * 0.85 from employees
+					where employee_id = e.manager_id)
