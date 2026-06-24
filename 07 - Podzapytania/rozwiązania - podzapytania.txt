@@ -1,0 +1,11 @@
+/*
+1. Wyświetl nazwiska i stanowiska pracowników pracujących w tym samym dziale co pracownik o nazwisku Yang (3 wiersze)
+*/
+
+select
+	first_name,
+	last_name
+	from employees
+where
+	department_id = (select department_id from employees
+						where last_name = 'Yang')
