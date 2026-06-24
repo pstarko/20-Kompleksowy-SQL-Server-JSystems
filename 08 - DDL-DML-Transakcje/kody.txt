@@ -1,0 +1,173 @@
+--DDL, DML, DCL
+--DDL - Data Definition Language (CREATE, ALTER, DROP)
+--DML - Data Manipulation Language (INSERT, DELETE, UPDATE, TRUNCATE*)
+--DCL - Data Control Language (COMMIT, ROLLBACK, GRANT, SAVEPOINT)
+
+create table t1 (id int)
+
+insert into t1 values (10)
+insert into t1 values (20)
+insert into t1 values (30)
+
+select * from t1
+
+begin tran
+	delete from t1 where id = 10
+rollback
+
+begin tran
+	truncate table t1 
+rollback
+
+--Tworzenie tabel i relacji
+create table zawodnicy
+	( idzawodnika int primary key,
+	  nazwisko nchar(100),
+	  druzynaid int)
+
+create table druzyny (iddruzyny int primary key, nazwa nchar(100))
+
+
+ALTER TABLE zawodnicy ADD CONSTRAINT
+	FK_zaw_dru FOREIGN KEY (druzynaid)
+	REFERENCES druzyny(iddruzyny)
+
+insert into zawodnicy values (1, 'xxxx', 1)
+
+insert into druzyny values  (100, 'FC Dziki')
+
+select * from druzyny
+select * from zawodnicy
+
+delete from druzyny where iddruzyny = 1
+
+update druzyny set iddruzyny=2 where iddruzyny=1
+
+update zawodnicy set pensja = 5000 where idzawodnika = 1
+
+ALTER TABLE zawodnicy
+ADD CONSTRAINT pensja_powyzej_5000
+CHECK (pensja > 5000)
+
+insert into zawodnicy values (2, 'yyyy', 1, 6000)
+
+--savepoint
+select * from druzyny
+
+begin tran a
+	insert into druzyny(nazwa) values ('FC a')
+save tran a
+
+begin tran b
+	insert into druzyny(nazwa) values ('FC b')
+save tran b
+
+begin tran c
+	insert into druzyny(nazwa) values ('FC c')
+save tran c
+
+rollback tran b
+
+--MERGE
+
+-- Tabela docelowa
+CREATE TABLE Produkty (
+    ID int PRIMARY KEY,
+    Nazwa nvarchar(100),
+    Cena decimal(10,2),
+    Kategoria nvarchar(50)
+);
+
+-- Tabela źródłowa
+CREATE TABLE NoweProdukty (
+    ID int,
+    Nazwa nvarchar(100),
+    Cena decimal(10,2),
+    Kategoria nvarchar(50)
+);
+
+-- Przykładowe dane
+INSERT INTO Produkty VALUES 
+(1, 'Laptop', 2500.00, 'Elektronika'),
+(2, 'Mysz', 50.00, 'Elektronika'),
+(3, 'Klawiatura', 150.00, 'Elektronika');
+
+INSERT INTO NoweProdukty VALUES 
+(2, 'Mysz Gaming', 80.00, 'Elektronika'),  -- aktualizacja
+(3, 'Klawiatura', 150.00, 'Elektronika'),  -- bez zmian
+(4, 'Monitor', 800.00, 'Elektronika');     -- nowy produkt
+
+
+--MERGE
+
+MERGE Produkty AS target
+USING NoweProdukty AS source
+ON target.ID = source.ID
+
+-- Gdy rekord istnieje - aktualizuj
+WHEN MATCHED AND (target.Nazwa != source.Nazwa OR target.Cena != source.Cena) THEN
+    UPDATE SET 
+        Nazwa = source.Nazwa,
+        Cena = source.Cena,
+        Kategoria = source.Kategoria
+
+-- Gdy rekord nie istnieje w tabeli docelowej - dodaj
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (ID, Nazwa, Cena, Kategoria)
+    VALUES (source.ID, source.Nazwa, source.Cena, source.Kategoria)
+
+-- Opcjonalnie: usuń rekordy które nie ma w źródle
+WHEN NOT MATCHED BY SOURCE THEN
+    DELETE
+
+-- Podsumowanie operacji
+OUTPUT $action, 
+       INSERTED.ID as InsertedID, 
+       DELETED.ID as DeletedID;
+
+
+/*
+Aby utworzyć tabelę z wersjonowaniem (ang. temporal table) w SQL Server, musisz wykorzystać funkcję systemu temporal tables. 
+Temporal tables automatycznie śledzą historię zmian w rekordach w tabeli. SQL Server przechowuje tę historię w powiązanej tabeli historycznej.
+*/
+
+CREATE TABLE dbo.PrzykladTemporalTable
+(
+    ID INT PRIMARY KEY,  -- Klucz główny
+    Nazwa NVARCHAR(100), -- Przykładowa kolumna danych
+    DataPoczatkowa DATETIME2 GENERATED ALWAYS AS ROW START, -- Kolumna początku wersji
+    DataKoncowa DATETIME2 GENERATED ALWAYS AS ROW END,      -- Kolumna końca wersji
+    PERIOD FOR SYSTEM_TIME (DataPoczatkowa, DataKoncowa)    -- Określenie zakresu czasowego wersjonowania
+)
+WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.PrzykladTemporalTableHistory));
+
+/*
+Objaśnienie:
+ID – kolumna klucza głównego.
+Nazwa – przykładowa kolumna z danymi.
+DataPoczatkowa i DataKoncowa – kolumny służące do śledzenia okresu ważności rekordu.
+PERIOD FOR SYSTEM_TIME – służy do oznaczenia, które kolumny przechowują informacje o wersji w czasie.
+WITH (SYSTEM_VERSIONING = ON) – włącza wersjonowanie w tabeli.
+HISTORY_TABLE – opcjonalnie można określić nazwę tabeli, która przechowuje wersje historyczne.
+*/
+
+INSERT INTO dbo.PrzykladTemporalTable (ID, Nazwa)
+VALUES (1, 'Wersja 1');
+
+
+UPDATE dbo.PrzykladTemporalTable
+SET Nazwa = 'Wersja 2'
+WHERE ID = 1;
+
+SELECT * FROM dbo.PrzykladTemporalTable FOR SYSTEM_TIME ALL;
+
+--usuwanie tabeli
+ALTER TABLE dbo.PrzykladTemporalTable
+SET (SYSTEM_VERSIONING = OFF);
+
+drop table PrzykladTemporalTable 
+
+DROP TABLE PrzykladTemporalTableHistory;
+
+
+
