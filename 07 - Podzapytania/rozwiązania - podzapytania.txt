@@ -26,3 +26,22 @@ where
 
 
 update employees set hire_date = '2013-06-17' where employee_id = 100
+
+
+
+/*
+3. Zobacz najdłużej pracujących pracowników każdego działu. (12 wierszy)
+*/
+
+select
+	first_name,
+	last_name,
+	department_id,
+	hire_date
+	from employees e
+where
+	hire_date = (select min(hire_date) from employees
+					where department_id = e.department_id)
+
+
+
