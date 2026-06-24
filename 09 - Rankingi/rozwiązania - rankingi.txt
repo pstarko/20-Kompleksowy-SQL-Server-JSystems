@@ -1,0 +1,58 @@
+--1
+select 
+	e.first_name,
+	e.last_name,
+	e.salary,
+	l.street_address,
+	l.city,
+	rank() over (order by e.salary desc) rnk
+	from employees e join departments d on e.department_id=d.department_id
+					 join locations l on d.location_id=l.location_id
+
+--2
+select 
+	e.first_name,
+	e.last_name,
+	e.salary,
+	l.street_address,
+	l.city,
+	rank() over (order by e.salary desc) rnk,
+	dense_rank() over (order by e.salary desc) drnk
+	from employees e join departments d on e.department_id=d.department_id
+					 join locations l on d.location_id=l.location_id
+
+
+--3
+select
+	t1.*
+	from (
+	select 
+		e.first_name,
+		e.last_name,
+		e.salary,
+		l.street_address,
+		l.city,
+		rank() over (order by e.salary desc) rnk,
+		dense_rank() over (order by e.salary desc) drnk
+		from employees e join departments d on e.department_id=d.department_id
+						 join locations l on d.location_id=l.location_id ) t1
+where
+	t1.rnk  <= 5
+
+
+--4
+select
+	t1.*
+	from (
+	select 
+		e.first_name,
+		e.last_name,
+		e.salary,
+		l.street_address,
+		l.city,
+		rank() over (order by e.salary) rnk,
+		dense_rank() over (order by e.salary) drnk
+		from employees e join departments d on e.department_id=d.department_id
+						 join locations l on d.location_id=l.location_id ) t1
+where
+	t1.rnk  <= 5
