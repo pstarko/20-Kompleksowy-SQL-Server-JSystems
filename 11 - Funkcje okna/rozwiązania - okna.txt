@@ -1,0 +1,42 @@
+/*
+1.Pokaż jak kształtowała się liczba zatrudnien w poszczególnych latach. 
+W dodatkowej kolumnie dodaj narastające wartości ilości zatrudnień w sumie dla każdego roku
+
+2.Zmień powyższy raport o informacje na jaki etat zostali zatrudnieni pracownicy. 
+Również dodaj kolumnę z wartościami narastającymi(47 wierszy)
+*/
+
+select
+	year(hire_date) rok,
+	count(employee_id) ilosc,
+	sum(count(employee_id)) over (order by year(hire_date)) rosnaco
+	from employees
+group by year(hire_date)
+
+
+select
+	year(hire_date) rok,
+	count(employee_id) ilosc,
+	j.job_title,
+	sum(count(employee_id)) over (order by year(hire_date),j.job_title) rosnaco
+	from employees e join jobs j on e.job_id = j.job_id
+group by year(hire_date), j.job_title
+
+/*
+3.
+Posortuj dane pracowników po job_title. Pokaż first and last name oraz salary. 
+W dodatkowej kolumnie pokaż ile w sumie wydajemy dla całego etatu. 
+Kolejna kolumna to procent udziału poszczególnego pracownika w wydatkach na etat
+*/
+
+select
+	t1.*,
+	CONCAT(cast(t1.salary / t1.suma_jobs as money) * 100,'%') prct
+	from (
+			select
+				j.job_title,
+				e.first_name,
+				e.last_name,
+				e.salary,
+				sum(e.salary) over (partition by j.job_title) suma_jobs
+				from employees e join jobs j on e.job_id = j.job_id ) t1
