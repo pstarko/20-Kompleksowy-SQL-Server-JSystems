@@ -103,3 +103,25 @@ select
 group by
     year(hire_date),
     DATEPART(QUARTER, hire_date)
+
+
+/*
+8.
+Przeanalizuj zarobki w osobnych raportach
+	a. 	Wzrost wynagrodzeń w kolejnych kwartałach(25 wierszy)
+*/
+
+select
+    t1.kwartal,
+    t1.ilosc,
+    t1.poprzednik,
+    t1.poprzednik - t1.ilosc roznica,
+    rank() over (order by t1.ilosc desc) ranking
+    from(
+        select
+            DATEPART(QUARTER, hire_date) kwartal,
+            count(*) ilosc,
+            lag(count(*)) over (order by DATEPART(QUARTER, hire_date)) poprzednik
+            from employees e
+        group by
+            DATEPART(QUARTER, hire_date)) t1;
