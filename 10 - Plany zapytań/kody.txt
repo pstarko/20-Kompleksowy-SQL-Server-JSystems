@@ -1,0 +1,141 @@
+/*Operatory*/
+
+-- Table scan
+SELECT * FROM AllData
+
+
+ALTER TABLE AllData ADD CONSTRAINT PK_AllData PRIMARY KEY (ID)
+
+-- Clustered index scan
+SELECT * FROM AllData
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City ON AllData (City)
+GO
+
+-- Index Scan (NonClustered)
+SELECT City FROM AllData
+
+
+-- Clustered Index Seek
+SELECT * FROM AllData WHERE ID = 99
+
+-- Index Seek
+SELECT ID FROM AllData WHERE City = 'London'
+
+-- Key Lookup
+SELECT ID, EmailAddress FROM AllData WHERE City = 'Dresden'
+
+
+
+ALTER TABLE AllData DROP CONSTRAINT PK_AllData
+
+
+
+-- RID Lookup
+SELECT ID, EmailAddress FROM AllData WHERE City = 'Dresden'
+
+ALTER TABLE AllData ADD CONSTRAINT PK_AllData PRIMARY KEY (ID)
+
+
+/*	 
+	Złączenia danych
+*/
+
+SELECT * FROM Sales.SalesOrderHeader
+
+SELECT * FROM Sales.SalesOrderDetail
+
+/*  Nested Loops  */
+SELECT 
+	soh.SalesOrderID, soh.OrderDate, soh.CustomerID,
+	sod.ProductID, sod.OrderQty, sod.UnitPrice
+FROM Sales.SalesOrderHeader AS soh
+JOIN Sales.SalesOrderDetail  AS sod ON soh.SalesOrderID = sod.SalesOrderID
+WHERE soh.SalesOrderID IN (43659, 43660, 43661)
+
+-- Nested Loops bez JOIN
+SELECT * FROM Sales.SalesOrderHeader 
+WHERE CustomerID = 28888
+
+
+/*  Merge Join  */
+
+SELECT 	c.*
+FROM Sales.Customer AS c
+JOIN Sales.SalesOrderHeader AS soh ON soh.CustomerID = c.CustomerID
+
+
+ALTER INDEX IX_SalesOrderHeader_CustomerID ON Sales.SalesOrderHeader DISABLE
+
+SELECT 	c.*
+FROM Sales.Customer AS c
+JOIN Sales.SalesOrderHeader AS soh ON soh.CustomerID = c.CustomerID
+
+set statistics io on
+
+-- wymuszenie Merge Join (zamiast Hash Match)
+SELECT 	c.*
+FROM Sales.Customer AS c
+JOIN Sales.SalesOrderHeader AS soh ON soh.CustomerID = c.CustomerID
+OPTION (MERGE JOIN)
+
+
+ALTER INDEX IX_SalesOrderHeader_CustomerID ON Sales.SalesOrderHeader REBUILD
+
+-- wymuszenie HASH JOIN
+SELECT 	c.*, soh.OrderDate
+FROM Sales.Customer AS c
+INNER HASH JOIN Sales.SalesOrderHeader AS soh ON soh.CustomerID = c.CustomerID
+
+/*  Hash Match (Join)  */
+
+
+SELECT pp.ProductID, pp.Name, ps.Name
+FROM Production.Product pp
+JOIN Production.ProductSubcategory ps
+ON ps.ProductSubcategoryID = pp.ProductSubcategoryID
+
+-- pomijanie złączenia
+SELECT pp.*
+FROM Production.Product pp
+LEFT JOIN Production.ProductSubcategory ps
+ON ps.ProductSubcategoryID = pp.ProductSubcategoryID
+
+/*
+	Grupowanie
+*/
+
+
+/* Stream Aggregate */
+
+
+SELECT COUNT(*)
+FROM Production.Product
+
+SELECT avg(reorderpoint)
+FROM Production.Product
+
+--0,0314702
+SELECT Color, COUNT(*)
+FROM Production.Product
+GROUP BY Color
+
+CREATE INDEX IDX_Product_Color ON Production.Product (Color)
+
+--0,0048862
+SELECT Color, COUNT(*)
+FROM Production.Product
+GROUP BY Color
+
+DROP INDEX IDX_Product_Color ON Production.Product
+
+/* Hash Match (Aggregate) */
+SELECT ProductID, AVG(UnitPrice)
+FROM Sales.SalesOrderDetail
+GROUP BY ProductID
+
+
+CREATE INDEX IDX_SalesOrderDetail_ProductID ON Sales.SalesOrderDetail (ProductID) INCLUDE(UnitPrice)
+
+DROP INDEX IDX_SalesOrderDetail_ProductID ON Sales.SalesOrderDetail
+
