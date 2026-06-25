@@ -1,0 +1,13 @@
+/*
+1.Użytkownik podaje dwie liczby X i Y. 
+Następnie pokazujesz mu liczby całkowite od X do Y.
+*/
+
+declare @x int = 0, @y int = 10
+begin
+	while @x <= @y
+		begin
+			print @x
+			set @x = @x + 1
+		end
+end
