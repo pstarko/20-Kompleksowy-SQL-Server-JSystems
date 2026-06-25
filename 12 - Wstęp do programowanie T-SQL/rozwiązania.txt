@@ -91,3 +91,49 @@ begin
 		end
 	print Concat('Końcowy wynik: ' ,@wynik)
 end
+
+
+/*
+6.
+Napisz program, który zwróci Ci liczbę liter i cyfr w podanych ciągu znaków i cyfr. 
+Znajdź wcześniej odpowiednią funkcję, która Ci to umożliwi
+*/
+
+--select ISNUMERIC(1), isnumeric('a')
+
+declare
+	@ciagZnakow varchar(50) = 'Agent00766',
+	@liczbaLiter int = 0,
+	@liczbaCyfr int = 0,
+	@indeks int = 1
+begin
+	while @indeks <= len(@ciagZnakow)
+		begin
+			if ISNUMERIC(SUBSTRING(@ciagZnakow, @indeks,1)) = 1
+				set @liczbaCyfr = @liczbaCyfr + 1
+			else
+				set @liczbaLiter = @liczbaLiter + 1
+
+		set @indeks = @indeks + 1
+		end
+	print concat('Ilosc liter: ', @liczbaLiter)
+	print concat('Ilosc cyfr: ', @liczbaCyfr)
+end
+
+
+/*
+7.
+Napisz program w którym użytkownik poda employee_id pracownika, 
+a program zwróci nazwisko szefa
+*/
+
+declare 
+	@employee_id int = 102,
+	@manager_id int,
+	@nazwiskoSzefa varchar(50)
+begin
+	set @manager_id = (select manager_id from employees where employee_id = @employee_id)
+	set @nazwiskoSzefa = (select last_name from employees where employee_id = @manager_id)
+	print @nazwiskoSzefa
+end
+
