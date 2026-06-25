@@ -88,3 +88,18 @@ SELECT
 					 right join countries c on c.country_id=l.country_id
 order by the_best desc
 
+/*
+8.
+Przeanalizuj zarobki w osobnych raportach
+	a. 	Wzrost wynagrodzeń w kolejnych kwartałach(25 wierszy)
+*/
+
+select 
+    year(hire_date) rok,
+    DATEPART(QUARTER, hire_date) kwartal,
+    --sum(salary),
+    sum(sum(Salary)) over (order by  year(hire_date), DATEPART(QUARTER, hire_date)) wzrost
+    from employees e
+group by
+    year(hire_date),
+    DATEPART(QUARTER, hire_date)
