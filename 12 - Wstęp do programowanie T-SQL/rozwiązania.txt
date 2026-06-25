@@ -75,3 +75,19 @@ begin
 
     PRINT @output;
 end
+
+
+/*
+5. Napisz program do obliczania kolejnych liczb całkowitych. Np. po podaniu liczby 5 otrzymasz 15(czyli 1+2+3+4+5)
+*/
+
+declare @x int = 1, @wynik int = 0, @koncowa_wartosc int = 6
+begin
+	while @x <= @koncowa_wartosc
+		begin
+			set @wynik = @wynik + @x
+			print concat('Dodałem: ', @x, ' = ' , @wynik)
+			set @x = @x + 1
+		end
+	print Concat('Końcowy wynik: ' ,@wynik)
+end
