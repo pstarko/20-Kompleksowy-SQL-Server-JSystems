@@ -226,3 +226,77 @@ ALTER DATABASE AdventureWorks2025 SET COMPATIBILITY_LEVEL = 140 --baza ustawiona
 ALTER DATABASE AdventureWorks2025 SET COMPATIBILITY_LEVEL = 170
 
 
+--Query Cache
+--
+
+ALTER DATABASE AdventureWorks2025 SET COMPATIBILITY_LEVEL = 160 --baza ustawiona na silnik SQL Server 2022
+
+ALTER DATABASE AdventureWorks2025 SET COMPATIBILITY_LEVEL = 170
+
+
+--plany zapytań z których baz danych zajmują miejsce w buffer pool
+SELECT 
+	dbs.name AS database_name,
+	cplan.refcounts, usecounts, size_in_bytes/1024 AS size_in_KB, cacheobjtype, objtype, 
+	qtext.text,
+	qplan.query_plan
+FROM sys.dm_exec_cached_plans cplan
+CROSS APPLY sys.dm_exec_sql_text(plan_handle) AS qtext
+CROSS APPLY sys.dm_exec_query_plan(cplan.plan_handle) AS qplan
+JOIN sys.databases AS dbs ON dbs.database_id = qtext.dbid
+
+dbcc freeproccache
+
+SELECT Color, COUNT(*) FROM Production.Product GROUP BY Color
+GO
+SELECT Color, COUNT(*) FROM Production.Product GROUP BY Color
+GO
+SELECT Color, COUNT(*) FROM Production.Product GROUP BY Color
+GO
+SELECT Color, COUNT(*) 
+FROM Production.Product GROUP BY Color
+
+SELECT 
+	dbs.name AS database_name,
+	cplan.refcounts, usecounts, size_in_bytes/1024 AS size_in_KB, cacheobjtype, objtype, 
+	qtext.text,
+	qplan.query_plan
+FROM sys.dm_exec_cached_plans cplan
+CROSS APPLY sys.dm_exec_sql_text(plan_handle) AS qtext
+CROSS APPLY sys.dm_exec_query_plan(cplan.plan_handle) AS qplan
+JOIN sys.databases AS dbs ON dbs.database_id = qtext.dbid
+
+--PARAMETER SNIFFING
+SELECT * FROM sys.database_scoped_configurations 
+
+CREATE UNIQUE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+GO
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City ON AllData (City)
+GO
+
+DBCC FREEPROCCACHE
+
+SELECT ID, FirstName, LastName FROM AllData WHERE City = 'Dresden'
+GO
+
+SELECT ID, FirstName, LastName FROM AllData WHERE City = 'Paris'
+GO
+
+CREATE OR ALTER PROC GetAllDataForCity @City nvarchar(30)
+AS
+BEGIN
+	SELECT ID, FirstName, LastName FROM AllData WHERE City = @City
+END
+GO
+
+EXEC GetAllDataForCity 'Paris'
+EXEC GetAllDataForCity 'Dresden'
+go
+
+CREATE OR ALTER PROC GetAllDataForCity @City nvarchar(30)
+AS
+BEGIN
+	SELECT ID, FirstName, LastName FROM AllData WHERE City = @City OPTION (RECOMPILE)
+END
+GO
