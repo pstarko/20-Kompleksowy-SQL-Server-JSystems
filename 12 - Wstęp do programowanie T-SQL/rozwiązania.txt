@@ -11,3 +11,26 @@ begin
 			set @x = @x + 1
 		end
 end
+
+
+/*
+2.
+Stwórz pętlę pokazującą informację: 
+Liczba 50, Liczba 49…., Liczba 1. 
+
+Pętla rozpoczyna się od 50 a kończy na 1. 
+Pomiń liczby parzyste pomiędzy 20 a 30.
+*/
+
+declare @x int = 50, @y int = 1
+begin
+	while @x >= @y
+		begin
+				if @x between 20 and 30 and @x % 2 = 1
+					print concat('z between: ', @x)	
+				else if @x not between 20 and 30
+						print @x
+
+		set @x = @x - 1
+		end
+end
