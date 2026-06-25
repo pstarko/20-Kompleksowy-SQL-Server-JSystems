@@ -139,3 +139,90 @@ CREATE INDEX IDX_SalesOrderDetail_ProductID ON Sales.SalesOrderDetail (ProductID
 
 DROP INDEX IDX_SalesOrderDetail_ProductID ON Sales.SalesOrderDetail
 
+/*	 
+	Usuwanie duplikatów
+*/
+
+-- grupowanie i distinct bez różnicy optymalizacyjnej
+SELECT ProductID
+FROM Sales.SalesOrderDetail
+GROUP BY ProductID
+
+SELECT DISTINCT ProductID
+FROM Sales.SalesOrderDetail
+
+-- Distinct Sort
+SELECT Color
+FROM Production.Product
+GROUP BY Color
+
+/*
+	OPERATORY 
+	Plany równoległe
+*/
+
+drop table msgs
+
+SELECT IDENTITY(int, 1,1) AS ID, * 
+INTO msgs
+FROM sys.messages
+
+SELECT * FROM msgs
+
+SELECT language_id, COUNT(*)
+FROM msgs
+GROUP BY language_id
+
+SELECT language_id, COUNT(*)
+FROM msgs
+GROUP BY language_id 
+OPTION (MAXDOP 1) --maksymalna ilość wątków do wykorzystania
+
+SELECT * FROM sys.configurations WHERE name = 'cost threshold for parallelism'
+
+EXEC sp_configure 'show advanced options', 1
+GO
+RECONFIGURE
+GO
+
+EXEC sp_configure 'cost threshold for parallelism', 25
+GO
+RECONFIGURE
+GO
+
+
+SELECT language_id, COUNT(*)
+FROM msgs
+GROUP BY language_id
+
+
+-- powrót do domyślnego ustawienia
+EXEC sp_configure 'cost threshold for parallelism', 5
+GO
+RECONFIGURE
+GO
+
+EXEC sp_configure 'show advanced options', 0
+GO
+RECONFIGURE
+GO
+
+
+CREATE OR ALTER FUNCTION dbo.GetLangName (@langid int)
+RETURNS nvarchar(100)
+AS 
+BEGIN
+	RETURN (SELECT TOP 1 alias FROM sys.syslanguages WHERE msglangid = @langid)
+END
+GO
+
+SELECT language_id, dbo.GetLangName(language_id) AS language, COUNT(*)
+FROM msgs
+GROUP BY language_id
+
+
+ALTER DATABASE AdventureWorks2025 SET COMPATIBILITY_LEVEL = 140 --baza ustawiona na silnik SQL Server 2017
+
+ALTER DATABASE AdventureWorks2025 SET COMPATIBILITY_LEVEL = 170
+
+
