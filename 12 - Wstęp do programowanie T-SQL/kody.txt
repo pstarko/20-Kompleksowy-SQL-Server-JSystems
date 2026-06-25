@@ -1,0 +1,80 @@
+--Wstęp do T-SQL
+
+declare @x int
+begin
+	set @x = 19
+	print @x
+end
+go
+
+declare @x int = 4
+begin
+	print @x
+end
+go
+
+--pętle
+declare @i int = 0
+WHILE @i <=20
+	begin	
+		print @i
+		set @i = @i + 1
+	end
+go
+
+truncate table #numery
+
+create table #numery(id int)
+go
+
+declare @i int = 0
+WHILE @i <= 15000
+	begin	
+		insert into #numery values (@i)
+		set @i = @i + 1
+	end
+
+select count(*) from #numery
+
+select * from #numery
+
+drop table #numery
+
+
+declare @x int = 10
+begin
+	if @x > 0 
+		begin
+			print @x
+			print 'x jest spoko'
+		end
+	else
+		print 'nie jest wieksze od 0'
+end
+GO
+
+declare @x int = -10
+begin
+	if @x > 0 
+		print 'wieksze od zera'
+	else if @x > -5
+		print 'wieksze od minus 5'
+	else
+		print 'inne'
+end
+go
+
+set statistics io off
+
+DECLARE @x INT;
+BEGIN
+	SET @x = (SELECT COUNT(*) FROM employees)
+	PRINT @x
+END
+GO
+
+DECLARE @x INT;
+BEGIN
+	SET @x = (SELECT employee_id FROM employees)
+	PRINT @x
+END
