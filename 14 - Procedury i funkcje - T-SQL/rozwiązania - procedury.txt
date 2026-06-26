@@ -13,3 +13,27 @@ Znajdź rozwiązanie, które Ci to umożliwi
 5. Jeśli więcej niż 0 to "nie możemy zmieniać"
 6. W innym wypadku możemy zmieniać
 */
+
+
+create table AllData_log(id int)
+
+go
+
+create or alter procedure Zmiana (@id int)
+as
+begin
+declare @email int
+	select
+		@email = EmailPromotion from AllData 
+		where id = @id
+	if @email = 2
+		begin
+			select 'nie mogę zmienić EmailPromotion'
+		end
+end
+
+exec Zmiana 2
+
+select * from alldata
+
+
