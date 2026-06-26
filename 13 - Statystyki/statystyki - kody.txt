@@ -175,4 +175,6 @@ UPDATE STATISTICS AllData [stat_AllData_Firstname] WITH FULLSCAN
 
 UPDATE STATISTICS AllData [stat_AllData_Firstname] WITH SAMPLE 10 PERCENT
 
+https://ola.hallengren.com/
+https://github.com/Microsoft/tigertoolbox/tree/master/AdaptiveIndexDefrag
 
