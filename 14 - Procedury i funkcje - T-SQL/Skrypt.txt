@@ -1,6 +1,6 @@
 --0.Script
 
-alter view Employees
+create view Employees
 as
 select
 	pp.BusinessEntityID,
