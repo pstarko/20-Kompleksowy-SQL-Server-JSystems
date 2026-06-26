@@ -1,0 +1,36 @@
+CREATE TABLE Produkty (
+IdProduktu INT PRIMARY KEY,
+Nazwa NVARCHAR(100),
+IloscDostepna INT
+);
+
+CREATE TABLE Zamowienia (
+IdZamowienia INT PRIMARY KEY IDENTITY,
+IdProduktu INT,
+IloscZamowiona INT,
+DataZamowienia DATETIME DEFAULT GETDATE()
+);
+
+-- Dodajemy produkt
+INSERT INTO Produkty (IdProduktu, Nazwa, IloscDostepna)
+VALUES (1, 'Laptop', 5);
+
+-- Zamówienie poprawne
+INSERT INTO Zamowienia (IdProduktu, IloscZamowiona)
+VALUES (1, 2);
+
+INSERT INTO Zamowienia (IdProduktu, IloscZamowiona)
+VALUES (1, 10);
+
+CREATE OR ALTER TRIGGER trg_Zamowiania
+ON Zamowienia
+AFTER INSERT
+AS
+BEGIN
+
+
+END
+
+
+
+
