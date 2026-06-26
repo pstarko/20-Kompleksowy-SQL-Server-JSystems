@@ -1,0 +1,208 @@
+CREATE TABLE Pracownicy (
+    Id INT PRIMARY KEY IDENTITY,
+    Imie NVARCHAR(100),
+    Nazwisko NVARCHAR(100),
+    Stanowisko NVARCHAR(100),
+    DataZatrudnienia DATE
+);
+
+CREATE TABLE LogZmianPracownikow (
+    LogId INT PRIMARY KEY IDENTITY,
+    Operacja NVARCHAR(10),
+    IdPracownika INT,
+    Imie NVARCHAR(100),
+    Nazwisko NVARCHAR(100),
+    Stanowisko NVARCHAR(100),
+    DataZmiany DATETIME DEFAULT GETDATE()
+);
+GO
+
+--trigger AFTER INSERT
+--Zapisuje nowego pracownika do tabeli audytowej:
+CREATE TRIGGER trg_AfterInsert_Pracownicy
+ON Pracownicy
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO LogZmianPracownikow (Operacja, IdPracownika, Imie, Nazwisko, Stanowisko)
+    SELECT 'INSERT', Id, Imie, Nazwisko, Stanowisko
+    FROM INSERTED;
+END;
+
+GO
+
+--trigger BEFORE UPDATE
+--Zapisuje stare dane do logu przed aktualizacją:
+CREATE TRIGGER trg_AfterUpdate_Pracownicy
+ON Pracownicy
+AFTER UPDATE
+AS
+BEGIN
+    INSERT INTO LogZmianPracownikow (Operacja, IdPracownika, Imie, Nazwisko, Stanowisko)
+    SELECT 'UPDATE', Id, Imie, Nazwisko, Stanowisko
+    FROM DELETED;
+END;
+
+GO
+
+--Trigger AFTER DELETE
+--Zapisuje usuniętych pracowników:
+CREATE TRIGGER trg_AfterDelete_Pracownicy
+ON Pracownicy
+AFTER DELETE
+AS
+BEGIN
+    INSERT INTO LogZmianPracownikow (Operacja, IdPracownika, Imie, Nazwisko, Stanowisko)
+    SELECT 'DELETE', Id, Imie, Nazwisko, Stanowisko
+    FROM DELETED;
+END;
+
+
+--Sprawdzamy działanie
+-- Dodanie pracownika
+INSERT INTO Pracownicy (Imie, Nazwisko, Stanowisko, DataZatrudnienia)
+VALUES ('Anna', 'Nowak2', 'Księgowa', '2022-03-01');
+
+-- Aktualizacja
+UPDATE Pracownicy
+SET Stanowisko = 'Główna księgowa'
+WHERE Nazwisko = 'Nowak2';
+
+-- Usunięcie
+DELETE FROM Pracownicy WHERE Nazwisko = 'Nowak2';
+
+-- Sprawdzenie logów
+SELECT * FROM LogZmianPracownikow;
+
+
+select * from Pracownicy
+
+drop trigger [trg_AfterDelete_Pracownicy]
+drop trigger [trg_AfterInsert_Pracownicy]
+drop trigger [trg_AfterUpdate_Pracownicy]
+drop table Pracownicy
+drop table LogZmianPracownikow
+
+
+--TRIGGER INSTEAD OF
+--po stworzeniu tabel na nowo
+
+CREATE TRIGGER trg_InsteadOfInsert_Pracownicy
+ON Pracownicy
+INSTEAD OF INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM INSERTED
+        WHERE Stanowisko = 'Prezes'
+    ) AND EXISTS (
+        SELECT 1
+        FROM Pracownicy
+        WHERE Stanowisko = 'Prezes'
+    )
+    BEGIN
+        RAISERROR('Prezes już istnieje. Nie można dodać kolejnego.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO Pracownicy (Imie, Nazwisko, Stanowisko, DataZatrudnienia)
+    SELECT Imie, Nazwisko, Stanowisko, DataZatrudnienia
+    FROM INSERTED;
+END;
+
+--testowanie
+-- Dodanie pierwszego Prezesa – OK
+INSERT INTO Pracownicy (Imie, Nazwisko, Stanowisko, DataZatrudnienia)
+VALUES ('Jan', 'Kowalski', 'Prezes', '2021-01-01');
+
+-- Próba dodania drugiego Prezesa – błąd
+INSERT INTO Pracownicy (Imie, Nazwisko, Stanowisko, DataZatrudnienia)
+VALUES ('Marek', 'Nowak', 'Prezes', '2022-02-02');
+
+
+--INSTEAD OF UPDATE – kontrola zmian
+/*
+Załóżmy, że nie chcemy pozwolić na zmianę stanowiska "Prezes" żadnemu pracownikowi – ich stanowisko musi pozostać niezmienne. Użyjemy INSTEAD OF UPDATE, by to wymusić:*/
+CREATE TRIGGER trg_InsteadOfUpdate_Pracownicy
+ON Pracownicy
+INSTEAD OF UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM INSERTED i
+        JOIN DELETED d ON i.Id = d.Id
+        WHERE d.Stanowisko = 'Prezes' AND i.Stanowisko <> d.Stanowisko
+    )
+    BEGIN
+        RAISERROR('Nie można zmieniać stanowiska Prezesa.', 16, 1);
+        RETURN;
+    END
+
+    UPDATE p
+    SET p.Imie = i.Imie,
+        p.Nazwisko = i.Nazwisko,
+        p.Stanowisko = i.Stanowisko,
+        p.DataZatrudnienia = i.DataZatrudnienia
+    FROM Pracownicy p
+    JOIN INSERTED i ON p.Id = i.Id;
+END;
+
+
+--testowanie
+-- Zakładamy, że Prezes już istnieje z Id = 1
+-- Próba zmiany stanowiska Prezesa – błąd
+UPDATE Pracownicy
+SET Stanowisko = 'Emeryt'
+WHERE Id = 1;
+
+-- Zmiana imienia Prezesa – OK
+UPDATE Pracownicy
+SET Imie = 'Janusz'
+WHERE Id = 1;
+
+
+--INSTEAD OF na widoku
+
+/*
+SQL Server nie pozwala bezpośrednio modyfikować większości widoków, szczególnie jeśli zawierają złączenia lub agregacje. 
+Dzięki triggerowi INSTEAD OF możesz „zasymulować” wstawianie/aktualizację do widoku.
+*/
+CREATE VIEW vw_PodstawoweDane AS
+SELECT Id, Imie, Nazwisko
+FROM Pracownicy;
+
+--Taki widok nie pozwala na INSERT, chyba że dodasz trigger:
+
+CREATE TRIGGER trg_InsteadOfInsert_vw_PodstawoweDane
+ON vw_PodstawoweDane
+INSTEAD OF INSERT
+AS
+BEGIN
+    INSERT INTO Pracownicy (Imie, Nazwisko, Stanowisko, DataZatrudnienia)
+    SELECT Imie, Nazwisko, 'Nieznane', GETDATE()
+    FROM INSERTED;
+END;
+
+
+--testowanie
+-- Dodanie przez widok (stanowisko i data zostaną uzupełnione domyślnie)
+INSERT INTO vw_PodstawoweDane (Imie, Nazwisko)
+VALUES ('Ewa', 'Kowalczyk');
+
+
+--sprawdź jaki DML
+declare @action varchar(4)
+    IF EXISTS (SELECT * FROM INSERTED)
+        BEGIN
+            IF EXISTS (SELECT * FROM DELETED) 
+                SET @action = 'U'  -- update
+            ELSE
+                SET @action = 'I'  --insert
+        END
+    ELSE IF EXISTS (SELECT * FROM DELETED)
+        SET @action = 'D'  -- delete
+    else 
+        set @action = 'noop' --no records affected
+--print @action
