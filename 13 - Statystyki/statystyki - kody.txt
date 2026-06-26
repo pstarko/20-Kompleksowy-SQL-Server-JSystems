@@ -79,3 +79,100 @@ WITH FULLSCAN
 
 
 DBCC SHOW_STATISTICS ('Alldata', stat_AllData_City_UK)
+
+
+-- Aktualizacja stastystyk
+
+CREATE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+GO
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_City ON AllData (City)
+GO
+
+
+SELECT * FROM sys.stats WHERE object_id = object_id('AllData')
+
+DBCC SHOW_STATISTICS ('AllData', IDX_NCL_AllData_City)
+
+--kolumna modification_counter - liczba modyfikacji wiersza od ostatniej aktualizacji statystyk
+SELECT sp.stats_id, 
+       name,  
+       last_updated, 
+       rows, 
+       rows_sampled, 
+       steps,
+       modification_counter
+FROM sys.stats AS stat
+CROSS APPLY sys.dm_db_stats_properties(stat.object_id, stat.stats_id) AS sp
+WHERE stat.object_id = OBJECT_ID('AllData')
+
+-- przebudowa zmienia statystyki
+ALTER INDEX IDX_NCL_AllData_City ON AllData REBUILD 
+
+/*
+	Automatyczna aktualizacja statystyk
+
+*/
+
+CREATE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+GO
+
+-- statystyki indeksu
+CREATE INDEX IDX_CL_AllData_City ON AllData (City)
+GO
+
+-- statystyki automatyczne
+SELECT * FROM AllData WHERE LastName = 'Ford'
+
+-- statystyki kolumny
+CREATE STATISTICS stat_AllData_Firstname
+ON AllData (Firstname) 
+
+select count(*) from alldata
+
+SELECT 0.20*COUNT(*) FROM AllData 
+
+--zmieniam 18%
+UPDATE TOP (7000) AllData
+SET City = CONCAT(City, '_1'), FirstName = CONCAT(FirstName, '_1'), LastName = CONCAT(LastName, '_1')
+
+SELECT sp.stats_id, 
+       name,  
+       last_updated, 
+       rows, 
+       rows_sampled, 
+       steps, 
+       unfiltered_rows, 
+       modification_counter
+FROM sys.stats AS stat
+CROSS APPLY sys.dm_db_stats_properties(stat.object_id, stat.stats_id) AS sp
+WHERE stat.object_id = OBJECT_ID('AllData')
+
+--uruchamiam jakiekolwiek zapytanie na kolumnie
+SELECT * FROM AllData WHERE FirstName = ''
+
+SELECT * FROM AllData WHERE LastName = ''
+
+
+/*
+	Ręczna aktualizacja statystyk
+*/
+
+-- aktualizacja wszystkich statystyk w tabeli AllData (próbka wierszy)
+UPDATE STATISTICS AllData
+
+-- aktualizacja statystyk kolumn (niezwiązane z indeksami)
+UPDATE STATISTICS AllData WITH COLUMNS
+
+-- aktualizacja statystyk indeksów
+UPDATE STATISTICS AllData WITH INDEX
+
+-- aktualizacja wybranych statystyk 
+UPDATE STATISTICS AllData [stat_AllData_Firstname]
+
+-- aktualizacja wybranych statystyk 
+UPDATE STATISTICS AllData [stat_AllData_Firstname] WITH FULLSCAN 
+
+UPDATE STATISTICS AllData [stat_AllData_Firstname] WITH SAMPLE 10 PERCENT
+
+
