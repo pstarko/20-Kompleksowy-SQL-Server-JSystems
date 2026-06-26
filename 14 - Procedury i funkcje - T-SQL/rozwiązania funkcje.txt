@@ -44,3 +44,32 @@ end
 end
 
 select * from dbo.zadanie_2(1)
+
+
+/*
+3. (Tabela Employees) Napisz funkcję, która zwróci informację czy dany pracownik
+(podajemy jego id) 
+był zatrudniony w parzystym miesiącu. Jeśli tak, to pokaż jest datę zatrudnienia.
+*/
+
+CREATE OR ALTER FUNCTION zadanie_3 (@id int)
+returns date
+as
+begin
+	declare @data date
+	set @data = (
+	select
+		hiredate
+	from Employees
+		where BusinessEntityID = @id)
+	
+	if month(@data)%2 = 0
+			return @data
+	else
+		set @data = null
+
+	return @data
+end
+go
+
+select dbo.zadanie_3(186)
