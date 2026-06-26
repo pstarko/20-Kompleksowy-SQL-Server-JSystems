@@ -1,0 +1,113 @@
+--procedury
+
+create or alter  procedure start1
+as
+select * from employees
+go
+
+exec start1
+go
+
+create or alter procedure start2 (@var_deptid int)
+as
+begin
+	declare @wynik varchar(10)
+	select @wynik = count(*) from employees
+	where department_id = @var_deptid
+	
+	print @wynik
+end
+
+exec start2 6
+exec start2 @var_deptid = 1
+go
+
+create table numery (id int)
+go
+
+drop table #numery
+GO
+
+create or alter procedure insert_to_numery (@ilosc int)
+as
+declare @i int = 1
+begin
+	--drop table #numery
+	create table numery (id int)
+	while (@i <= @ilosc)
+		begin
+			insert into numery values (@i)
+			set @i = @i + 1
+		end
+	select * from numery
+end
+
+exec insert_to_numery 100
+
+select * from numery
+GO
+
+
+create procedure start5 (@var_deptid int, @var_count int OUTPUT)
+as
+select 
+	@var_count = count(*) 
+	from employees
+	where department_id = @var_deptid
+
+declare @wynik int
+	exec start5 60, @wynik OUTPUT
+	select @wynik
+	print @wynik
+go
+
+
+--KURSOR
+
+DECLARE @EmployeeID INT, @FirstName NVARCHAR(50), @LastName NVARCHAR(50)
+
+-- Deklaracja kursora
+DECLARE employee_cursor 
+	CURSOR FOR
+			SELECT employee_id, first_name, last_name
+			FROM EMPLOYEES
+
+	-- Otwarcie kursora
+	OPEN employee_cursor
+
+		-- Pobranie pierwszego rekordu
+		FETCH NEXT FROM employee_cursor INTO @EmployeeID, @FirstName, @LastName
+
+		-- Iteracja po rekordach
+			WHILE @@FETCH_STATUS = 0
+			BEGIN
+				PRINT 'ID: ' + CAST(@EmployeeID AS NVARCHAR(10)) + ', Imię: ' + @FirstName + ', Nazwisko: ' + @LastName
+
+				-- Pobranie kolejnego rekordu
+				FETCH NEXT FROM employee_cursor INTO @EmployeeID, @FirstName, @LastName
+			END
+
+	-- Zamknięcie i usunięcie kursora
+	CLOSE employee_cursor
+	DEALLOCATE employee_cursor
+GO
+
+declare @x int
+declare c1 
+	cursor for
+	select department_id from departments
+
+begin
+	--set @x = (select department_id from departments)
+	--print @x
+
+	OPEN c1
+		FETCH NEXT FROM c1 INTO @x
+			WHILE @@FETCH_STATUS = 0
+				begin
+					print @x
+					FETCH NEXT FROM c1 INTO @x
+				end
+	CLOSE c1
+	DEALLOCATE c1
+end
