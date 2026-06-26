@@ -1,0 +1,43 @@
+--0.Script
+
+alter view Employees
+as
+select
+	pp.BusinessEntityID,
+	pp.FirstName,
+	pp.LastName,
+	CASE 
+		WHEN pp.PersonType = 'SC' THEN 'Store Contact'
+		WHEN pp.PersonType = 'IN' THEN 'Individual (retail) customer'
+		WHEN pp.PersonType = 'SP' THEN 'Sales person'
+		WHEN pp.PersonType = 'EM' THEN 'Employee (non-sales)'
+		WHEN pp.PersonType = 'VC' THEN 'Vendor'
+		WHEN pp.PersonType = 'GC' THEN 'General contact'
+		ELSE '---' end as PersonType,
+	he.BirthDate,
+	he.HireDate,
+	he.JobTitle,
+	CASE 
+		WHEN he.MaritalStatus='M' THEN 'Married'
+		ELSE 'Single' END as MartialStatus,
+	CASE 
+		WHEN he.Gender='M' THEN 'Male'
+		ELSE 'Female' END as Gender,
+	he.VacationHours,
+	pe.EmailAddress,
+	ppp.PhoneNumber,
+	pnt.Name PhoneName,
+	d.DepartmentID,
+	d.Name DepartmentName,
+	edh.StartDate,
+	eph.Rate
+	from Person.Person pp join HumanResources.Employee he on pp.BusinessEntityID=he.BusinessEntityID 
+						  join Person.EmailAddress pe on pp.BusinessEntityID=pe.BusinessEntityID
+						  join Person.PersonPhone ppp on pp.BusinessEntityID=ppp.BusinessEntityID
+						  join Person.PhoneNumberType pnt on ppp.PhoneNumberTypeID=pnt.PhoneNumberTypeID
+						  join HumanResources.EmployeeDepartmentHistory edh on edh.BusinessEntityID=he.BusinessEntityID
+						  join HumanResources.Department d on edh.DepartmentID=d.DepartmentID
+						  join HumanResources.EmployeePayHistory eph on eph.BusinessEntityID=pp.BusinessEntityID and eph.RateChangeDate = (select MAX(RateChangeDate) from HumanResources.EmployeePayHistory where BusinessEntityID=pp.BusinessEntityID) --ostatnia zmiana stawki
+	where edh.EndDate is null
+
+
