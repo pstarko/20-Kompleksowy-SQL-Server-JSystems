@@ -11,6 +11,11 @@ IloscZamowiona INT,
 DataZamowienia DATETIME DEFAULT GETDATE()
 );
 
+select * from Produkty 
+select * from Zamowienia
+
+truncate table Zamowienia
+
 -- Dodajemy produkt
 INSERT INTO Produkty (IdProduktu, Nazwa, IloscDostepna)
 VALUES (1, 'Laptop', 5);
@@ -22,13 +27,33 @@ VALUES (1, 2);
 INSERT INTO Zamowienia (IdProduktu, IloscZamowiona)
 VALUES (1, 10);
 
+
+GO
+
 CREATE OR ALTER TRIGGER trg_Zamowiania
 ON Zamowienia
 AFTER INSERT
 AS
 BEGIN
-declare @idproduktu int, @iloscZamowiona int, @iloscDostepna int
+	declare @idproduktu int, @iloscZamowiona int, @iloscDostepna int
 
+    SELECT 
+        @IdProduktu = IdProduktu,
+        @IloscZamowiona = IloscZamowiona
+    FROM INSERTED;
+
+    SELECT 
+        @IloscDostepna = IloscDostepna
+    FROM Produkty
+    WHERE IdProduktu = @IdProduktu;
+
+    IF @iloscZamowiona > @iloscDostepna
+        BEGIN
+            RAISERROR('Brak wystarczającej ilości', 16, 1)
+            ROLLBACK
+        END
+    ELSE
+        update Produkty set IloscDostepna = IloscDostepna - @iloscZamowiona where IdProduktu = @idproduktu
 END
 
 
