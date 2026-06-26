@@ -27,7 +27,7 @@ ON Zamowienia
 AFTER INSERT
 AS
 BEGIN
-
+declare @idproduktu int, @iloscZamowiona int, @iloscDostepna int
 
 END
 
