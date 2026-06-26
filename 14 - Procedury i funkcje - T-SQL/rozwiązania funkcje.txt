@@ -35,7 +35,12 @@ begin
 		LastName
 	from Employees
 		where departmentid = @dept
+	
+	if @@ROWCOUNT = 0
+		insert into @tab1 values ('brak', 'pracowników')
+
 	return
+end
 end
 
 select * from dbo.zadanie_2(1)
