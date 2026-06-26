@@ -1,0 +1,81 @@
+
+CREATE CLUSTERED INDEX IDX_CL_AllData_ID ON AllData (ID)
+GO
+
+CREATE NONCLUSTERED INDEX IDX_NCL_AllData_Country ON AllData (Country)
+GO
+
+SELECT * FROM sys.stats 
+WHERE object_id = object_id('AllData')
+ORDER BY name
+
+DBCC SHOW_STATISTICS ('AllData', IDX_NCL_AllData_Country)
+
+
+SELECT * FROM AllData WHERE City = 'Berks'
+
+
+DBCC SHOW_STATISTICS ('AllData', [_WA_Sys_0000000E_6E765879])
+
+SELECT city FROM AllData
+order by 1
+
+--[_WA_Sys_0000000E_6E765879]
+--_WA_Sys - automatyczna statystyka
+--0000000E - id 16tkowo kolumna
+--6E765879 - id 16tkowo tabela
+
+SELECT 
+	column_id, CONVERT(VARBINARY(8), column_id) AS hex_column_id, 
+	object_id, CONVERT(VARBINARY(8), object_id) AS hex_object_id, 
+*
+FROM sys.columns 
+WHERE object_id = OBJECT_ID('AllData') 
+	AND name = 'City' 
+
+/*
+	Rows VS Rows Sampled
+*/
+DBCC SHOW_STATISTICS ('AllData', City)
+
+sp_spaceused 'AllData'
+
+
+sp_spaceused 'Person.Person'
+
+SELECT * FROM sys.stats WHERE object_id = object_id('Person.Person')
+
+DBCC SHOW_STATISTICS ('Person.Person', Firstname)
+
+select * from Person.Person
+where FirstName = 'Adam'
+
+CREATE STATISTICS stat_Person_Firstname
+ON Person.Person (Firstname) 
+WITH FULLSCAN
+
+DBCC SHOW_STATISTICS ('Person.Person', [stat_Person_Firstname])
+
+/*
+	Statystyki filtrowane
+*/
+
+--kolumny skorelowane
+--E: 1914, A: 1914
+SELECT * FROM AllData WHERE Country = 'United Kingdom'
+
+--E: 420, A: 420
+SELECT * FROM AllData WHERE City = 'London'
+
+--E: 134,104, A: 420
+SELECT * FROM AllData WHERE Country = 'United Kingdom' AND City = 'London'
+
+--https://learn.microsoft.com/pl-pl/sql/relational-databases/query-processing-architecture-guide?view=sql-server-ver17
+
+CREATE STATISTICS stat_AllData_City_UK
+ON AllData (City)
+WHERE Country = 'United Kingdom'
+WITH FULLSCAN
+
+
+DBCC SHOW_STATISTICS ('Alldata', stat_AllData_City_UK)
