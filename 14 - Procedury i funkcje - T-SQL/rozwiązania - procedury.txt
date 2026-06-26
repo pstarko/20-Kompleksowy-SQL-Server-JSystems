@@ -1,0 +1,15 @@
+/*
+1. Stwórz procedurę, która pozwoli zmienić status w kolumnie EmailPromotion 
+wybranego przez id pracownika. 
+Status nie może być zamieniony na niższy. 
+
+Dany pracownik może mieć zmieniony status tylko raz przez procedurę. 
+Znajdź rozwiązanie, które Ci to umożliwi
+
+1. Tworzymy tabelkę AllData_log(id int)
+2. Wyciągamy EmailPromotion z tabeli AllData
+3. Sprawdzamy czy EP=2, jeśli tak - "nie możemy go zmienić"
+4. Sprawdzamy ile mamy wpisów dla id w AllData_log
+5. Jeśli więcej niż 0 to "nie możemy zmieniać"
+6. W innym wypadku możemy zmieniać
+*/
