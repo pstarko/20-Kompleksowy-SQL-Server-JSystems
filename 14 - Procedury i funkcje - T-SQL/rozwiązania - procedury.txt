@@ -19,7 +19,7 @@ create table AllData_log(id int)
 
 go
 
-create or alter procedure Zmiana (@id int)
+create or alter procedure Zmiana @id int
 as
 begin
 declare @email int
@@ -30,10 +30,25 @@ declare @email int
 		begin
 			select 'nie mogę zmienić EmailPromotion'
 		end
+	else
+		begin
+			if (select count(*) from AllData_log where id = @id) = 0
+				begin
+					update AllData set EmailPromotion = EmailPromotion + 1 where id = @id
+					insert into AllData_log values (@id)
+					select 'zmieniłem EmailPromotion'
+				end
+			else
+				begin
+					select concat('Pracownik o id = ', @id, ' miał już zmieniony EmailPromotion')
+				end
+		end
 end
 
-exec Zmiana 2
+exec Zmiana 1
 
-select * from alldata
+select * from alldata_log
+
+select * from AllData
 
 
