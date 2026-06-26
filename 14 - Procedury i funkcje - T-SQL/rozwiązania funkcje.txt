@@ -1,0 +1,18 @@
+/*
+1. (Tabela Employees) 
+Użytkownik podaje stawkę(Rate). 
+W wyniku pokazujesz ilość ludzi, którzy mają stawkę niższą, taką samą i wyższą od podanej. 
+Wykorzystaj funkcję zwracającą tabelę.
+*/
+
+CREATE OR ALTER FUNCTION zadanie_1 (@stawka int)
+returns table
+as
+RETURN
+	select
+		(select count(*) from employees where rate > @stawka) wyzsza,
+		(select count(*) from employees where rate = @stawka) taka_sama,
+		(select count(*) from employees where rate < @stawka) nizsza
+GO
+
+select * from dbo.zadanie_1(30)
