@@ -206,3 +206,38 @@ declare @action varchar(4)
     else 
         set @action = 'noop' --no records affected
 --print @action
+
+
+
+CREATE TRIGGER trg_ShowTime
+ON Pracownicy  -- <- zmień na swoją tabelę
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @action NVARCHAR(10);
+    DECLARE @currentTime NVARCHAR(30);
+
+    -- Określenie typu operacji
+    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+        SET @action = 'UPDATE';
+    ELSE IF EXISTS (SELECT 1 FROM inserted)
+        SET @action = 'INSERT';
+    ELSE
+        SET @action = 'DELETE';
+
+    SET @currentTime = CONVERT(NVARCHAR(30), GETDATE(), 121);
+
+    RAISERROR('Operacja: %s | Aktualny czas: %s', 0, 1, @action, @currentTime) WITH NOWAIT;
+END;
+
+
+INSERT INTO Pracownicy (Imie, Nazwisko, Stanowisko, DataZatrudnienia)
+VALUES ('Jan', 'Kowalski', 'Prezes', '2021-01-01');
+
+UPDATE Pracownicy
+SET Imie = 'Janusz'
+WHERE Id = 1;
+
+delete from pracownicy where id = 1
