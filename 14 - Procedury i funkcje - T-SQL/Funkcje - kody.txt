@@ -1,0 +1,123 @@
+create or alter function fun1()
+returns int 
+as
+begin
+	return 99
+end
+go
+
+select dbo.fun1()
+
+go
+
+select
+	last_name,
+	salary,
+	salary + dbo.fun1()
+	from employees
+go
+ 
+create or alter function fun2(@x int)
+returns int 
+as
+begin
+	set @x = 40 --w funkcjach można zmieniać wartość argumentu
+	return @x+9
+end
+go
+
+select dbo.fun2(29)
+go
+
+create function fun3a(@x int, @y varchar(50))
+returns varchar(60) as
+begin
+	return concat(@x, @y)
+end
+go
+
+select 
+	dbo.fun3a(100, 'super tekst') 
+go
+
+
+create function fun4(@x int)
+returns varchar(10) as
+begin
+	declare @wynik varchar(10)
+	
+	if @x > 10
+		set @wynik = 'OK'
+	else
+		set @wynik = 'NIE'
+
+	return @wynik
+end
+go
+
+select dbo.fun4(11)
+go
+
+create function fun7(@x int)
+returns varchar(10) as
+begin
+declare @wynik varchar(10)	
+	select 
+		@wynik = count(*) 
+		from employees
+		where department_id = @x
+	return @wynik
+end
+go
+
+select dbo.fun7(50)
+go
+--Funkcje tabelaryczne (inline table-valued functions)
+
+create function fun3(@var_deptid int)
+RETURNS TABLE
+as
+RETURN
+	select
+		department_name
+		from
+			departments
+		where department_id = @var_deptid
+
+go 
+
+select * from dbo.fun3(50)
+go
+
+--MSTVF - Multi statement table valued function
+CREATE FUNCTION fun8()
+RETURNS
+	@tab1 TABLE (id int, nazwa varchar(40))
+as
+begin
+	insert into @tab1 values (10,'a')
+	insert into @tab1 values (20,'b')
+	RETURN
+end
+
+go
+
+select * from fun8()
+
+--CROSS APPLY
+select
+	first_name,
+	last_name,
+	f.department_name
+	from employees e cross apply fun3(e.department_id) f --on e.department_id = f.department_id
+
+go
+
+--OUTER APPLY
+select
+	first_name,
+	last_name,
+	f.department_name
+	from employees e outer apply fun3(e.department_id) f
+where
+	e.department_id = 30
