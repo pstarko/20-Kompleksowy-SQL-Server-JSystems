@@ -16,3 +16,26 @@ RETURN
 GO
 
 select * from dbo.zadanie_1(30)
+
+/*
+2. (Tabela Employees) 
+Stwórz funkcję która pokaże imię i nazwisko pracowników ze wskazanego departamentu. 
+Jeśli nie ma pracowników również pokaż stostowną informację.
+Wykorzystaj Multi statement table valued function.
+*/
+
+CREATE OR ALTER FUNCTION zadanie_2 (@dept int)
+returns 
+	@tab1 table (fn varchar(50), ln varchar(50))
+as
+begin
+	insert into @tab1 
+	select
+		firstname,
+		LastName
+	from Employees
+		where departmentid = @dept
+	return
+end
+
+select * from dbo.zadanie_2(1)
